@@ -22,7 +22,7 @@ Backbone.addBeforePopState = function(BB) {
 
     // If there are beforepopstate handlers, continue as normal
     var events = jQuery(window).data('events') || jQuery._data(jQuery(window)[0], 'events');
-    if (!events || !events.beforepopstate || BB.history._pushHistory.length == 0) {
+    if (!events || !events.beforepopstate) {
       return BB.history._originalCheckUrl(e);
     }
 
