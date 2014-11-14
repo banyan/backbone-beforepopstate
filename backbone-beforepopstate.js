@@ -17,7 +17,7 @@ Backbone.addBeforePopState = function(BB) {
   BB.History.prototype._originalCheckUrl = BB.History.prototype.checkUrl;
 
   BB.History.prototype.checkUrl = function(e) {
-    var confirmText, returnTo, fragment, e;
+    var returnTo, fragment, e;
     var confirmSuffix = "\n\nAre you sure you want to leave this page?";
 
     // If there are beforepopstate handlers, continue as normal
@@ -30,12 +30,13 @@ Backbone.addBeforePopState = function(BB) {
     // and then checking with the user
     var cancelled = false;
     for (var i = 0; i < events.beforepopstate.length; i++) {
-      e= {
+      e = {
         type: "beforepopstate",
         fragment: BB.history._pushHistory[BB.history._pushHistory.length - 1]
       };
-      confirmText = events.beforepopstate[i].handler(e);
-      if (confirmText && !confirm(confirmText + confirmSuffix)) {
+      var ret = events.beforepopstate[i].handler(e);
+      var confirmMessage = ret.confirmText + confirmSuffix;
+      if (BB.history.fragment.match(ret.pathRegex) && !confirm(confirmMessage)) {
         cancelled = true;
         break;
       }
@@ -65,7 +66,7 @@ Backbone.addBeforePopState = function(BB) {
   BB.History.prototype.navigate = function(fragment, options) {
     if (!BB.History.started) return false;
 
-    var confirmText, e;
+    var e;
     var confirmSuffix = "\n\nAre you sure you want to leave this page?";
 
     // If there are beforepushstate handlers, continue as normal
@@ -79,8 +80,9 @@ Backbone.addBeforePopState = function(BB) {
           type: "beforepushstate",
           fragment: fragment
         };
-        confirmText = events.beforepushstate[i].handler(e);
-        if (confirmText && !confirm(confirmText + confirmSuffix)) {
+        var ret = events.beforepushstate[i].handler(e);
+        var confirmMessage = ret.confirmText + confirmSuffix;
+        if (BB.history.fragment.match(ret.pathRegex) && !confirm(confirmMessage)) {
           cancelled = true;
           break;
         }
